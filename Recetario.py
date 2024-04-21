@@ -116,6 +116,20 @@ def list_recipes(session, id_usuario):
     else:
         print("No se encontró el usuario.")
 
+def view_recipe_details(session, id_receta):
+    """Muestra los detalles de una receta específica."""
+    receta = session.query(Receta).filter(Receta.id == id_receta).first()
+
+    if receta:
+        print("Detalles de la receta:")
+        print(f"Receta: {receta.receta}")
+        print("Ingredientes:")
+        print(receta.ingredientes)
+        print("Pasos:")
+        print(receta.pasos)
+    else:
+        print("No se encontró la receta con el ID proporcionado.")
+
 def search_recipe_by_ingredient(session, ingrediente):
     """Busca recetas que contengan un ingrediente específico."""
     recetas = session.query(Receta).filter(Receta.ingredientes.like(f'%{ingrediente}%')).all()
@@ -179,6 +193,22 @@ def main():
 
                     elif opcion_usuario == "4":
                         list_recipes(session, user_id)
+                        while True:
+                            print("\n--- MENÚ DE LISTADO DE RECETAS ---")
+                            print("1. Ver detalles de una receta")
+                            print("2. Volver al menú anterior")
+
+                            opcion_listado = input("Seleccione una opción: ")
+
+                            if opcion_listado == "1":
+                                id_receta = input("ID de la receta a ver detalles: ")
+                                view_recipe_details(session, id_receta)
+
+                            elif opcion_listado == "2":
+                                break
+
+                            else:
+                                print("Opción inválida.")
 
                     elif opcion_usuario == "5":
                         ingrediente = input("Ingrese un ingrediente para buscar recetas: ")

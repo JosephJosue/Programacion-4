@@ -1,6 +1,7 @@
 import sqlite3 as sql
 import hashlib
 
+
 def create_connection(database):
     """Crea una conexión a la base de datos SQLite."""
     try:
@@ -9,6 +10,7 @@ def create_connection(database):
     except sql.Error as e:
         print(f"Error al conectar a la base de datos: {e}")
         return None
+
 
 def create_tables(conn):
     """Crea las tablas 'usuarios' y 'recetas' si no existen."""
@@ -34,9 +36,11 @@ def create_tables(conn):
     except sql.Error as e:
         print(f"Error al crear tablas: {e}")
 
+
 def hash_password(password):
     """Hashea una contraseña utilizando el algoritmo SHA-256."""
     return hashlib.sha256(password.encode()).hexdigest()
+
 
 def create_user(conn, usuario, contrasena, email):
     """Crea un nuevo usuario en la base de datos."""
@@ -45,7 +49,7 @@ def create_user(conn, usuario, contrasena, email):
         cursor.execute('''
             SELECT usuario, email FROM usuarios WHERE usuario = ? OR email = ?''', (usuario, email))
         existing_user_email = cursor.fetchone()
-        
+
         if existing_user_email:
             if existing_user_email[0] == usuario:
                 print("El nombre de usuario ya está en uso. Por favor, elija otro.")
@@ -54,11 +58,13 @@ def create_user(conn, usuario, contrasena, email):
         else:
             hashed_password = hash_password(contrasena)
             cursor.execute('''
-                INSERT INTO usuarios (usuario, contrasena, email) VALUES (?, ?, ?)''', (usuario, hashed_password, email))
+                INSERT INTO usuarios (usuario, contrasena, email) VALUES (?, ?, ?)''',
+                           (usuario, hashed_password, email))
             conn.commit()
             print("¡Usuario creado con éxito!")
     except sql.Error as e:
         print(f"Error al crear usuario: {e}")
+
 
 def log_in(conn, usuario, contrasena):
     """Verifica las credenciales de inicio de sesión y devuelve el ID del usuario."""
@@ -68,7 +74,7 @@ def log_in(conn, usuario, contrasena):
         cursor.execute('''
             SELECT id FROM usuarios WHERE usuario = ? AND contrasena = ?''', (usuario, hashed_password))
         user_id = cursor.fetchone()
-        
+
         if user_id:
             print("¡Bienvenido a su recetario!")
             return user_id[0]
@@ -78,6 +84,7 @@ def log_in(conn, usuario, contrasena):
     except sql.Error as e:
         print(f"Error al iniciar sesión: {e}")
 
+
 def add_recipe(conn, receta, ingredientes, pasos, id_usuario):
     """Agrega una nueva receta a la base de datos."""
     try:
@@ -85,11 +92,13 @@ def add_recipe(conn, receta, ingredientes, pasos, id_usuario):
         ingredientes_str = '\n'.join(ingredientes)
         pasos_str = '\n'.join(pasos)
         cursor.execute('''
-            INSERT INTO recetas (receta, ingredientes, pasos, id_usuario) VALUES (?, ?, ?, ?)''', (receta, ingredientes_str, pasos_str, id_usuario))
+            INSERT INTO recetas (receta, ingredientes, pasos, id_usuario) VALUES (?, ?, ?, ?)''',
+                       (receta, ingredientes_str, pasos_str, id_usuario))
         conn.commit()
         print("¡Receta agregada con éxito!")
     except sql.Error as e:
         print(f"Error al agregar receta: {e}")
+
 
 def update_recipe(conn, id_receta, receta=None, ingredientes=None, pasos=None):
     """Modifica una receta existente en la base de datos."""
@@ -119,6 +128,7 @@ def update_recipe(conn, id_receta, receta=None, ingredientes=None, pasos=None):
     except sql.Error as e:
         print(f"Error al modificar receta: {e}")
 
+
 def delete_recipe(conn, id_receta):
     """Elimina una receta de la base de datos."""
     try:
@@ -130,6 +140,7 @@ def delete_recipe(conn, id_receta):
     except sql.Error as e:
         print(f"Error al eliminar receta: {e}")
 
+
 def list_recipes(conn, id_usuario):
     """Lista todas las recetas de un usuario específico."""
     try:
@@ -137,7 +148,7 @@ def list_recipes(conn, id_usuario):
         cursor.execute('''
             SELECT id, receta FROM recetas WHERE id_usuario = ?''', (id_usuario,))
         recetas = cursor.fetchall()
-        
+
         if recetas:
             print("Listado de recetas:")
             for receta in recetas:
@@ -147,6 +158,7 @@ def list_recipes(conn, id_usuario):
     except sql.Error as e:
         print(f"Error al listar recetas: {e}")
 
+
 def view_recipe_details(conn, id_receta):
     """Muestra los detalles de una receta específica."""
     try:
@@ -154,7 +166,7 @@ def view_recipe_details(conn, id_receta):
         cursor.execute('''
             SELECT receta, ingredientes, pasos FROM recetas WHERE id = ?''', (id_receta,))
         detalles_receta = cursor.fetchone()
-        
+
         if detalles_receta:
             print("Detalles de la receta:")
             print(f"Receta: {detalles_receta[0]}")
@@ -167,6 +179,7 @@ def view_recipe_details(conn, id_receta):
     except sql.Error as e:
         print(f"Error al ver detalles de receta: {e}")
 
+
 def search_recipe_by_ingredient(conn, ingrediente):
     """Busca recetas que contengan un ingrediente específico."""
     try:
@@ -174,7 +187,7 @@ def search_recipe_by_ingredient(conn, ingrediente):
         cursor.execute('''
             SELECT id, receta FROM recetas WHERE ingredientes LIKE ?''', ('%' + ingrediente + '%',))
         recetas = cursor.fetchall()
-        
+
         if recetas:
             print(f"Recetas que contienen '{ingrediente}':")
             for receta in recetas:
@@ -183,6 +196,7 @@ def search_recipe_by_ingredient(conn, ingrediente):
             print(f"No se encontraron recetas que contengan '{ingrediente}'.")
     except sql.Error as e:
         print(f"Error al buscar receta por ingrediente: {e}")
+
 
 def main():
     # Crear una conexión a la base de datos y crear las tablas si no existen
@@ -233,8 +247,12 @@ def main():
                     elif opcion_usuario == "2":
                         id_receta = input("ID de la receta a modificar: ")
                         receta = input("Nuevo nombre de la receta (deje en blanco si no desea modificar): ")
-                        ingredientes = input("Nuevos ingredientes (deje en blanco si no desea modificar, separados por coma): ").split(',')
-                        pasos = input("Nuevos pasos (deje en blanco si no desea modificar, separados por punto y coma): ").split(';')
+                        ingredientes = input(
+                            "Nuevos ingredientes (deje en blanco si no desea modificar, separados por coma): ").split(
+                            ',')
+                        pasos = input(
+                            "Nuevos pasos (deje en blanco si no desea modificar, separados por punto y coma): ").split(
+                            ';')
                         update_recipe(conn, id_receta, receta, ingredientes, pasos)
 
                     elif opcion_usuario == "3":
@@ -280,6 +298,3 @@ def main():
 
         else:
             print("Opción inválida.")
-
-if __name__ == "__main__":
-    main()

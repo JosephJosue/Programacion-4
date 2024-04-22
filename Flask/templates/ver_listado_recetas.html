@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Recetas</title>
+</head>
+<body>
+    <h1>Listado de Recetas</h1>
+    <ul>
+        {% for receta in recetas %}
+        <li>
+            <strong>{{ receta.nombre }}</strong><br>
+            Ingredientes: {{ receta.ingredientes }}<br>
+            Pasos: {{ receta.pasos }}<br>
+            <a href="{{ url_for('actualizar_receta', id_receta=loop.index) }}">Actualizar</a> |
+            <a href="{{ url_for('eliminar_receta', id_receta=loop.index) }}">Eliminar</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('agregar_receta') }}">Agregar Receta</a>
+</body>
+</html>
